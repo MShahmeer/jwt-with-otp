@@ -130,10 +130,11 @@ export async function getUser(req, res) {
 export async function updateUser(req, res) {
   try {
     const id = req.query.id;
+    const { userId } = req.user; // we are getting this userID after decoding the token
     if (id) {
       const body = req.body;
       //update the data
-      await UserModel.findOneAndUpdate({ _id: id }, body);
+      await UserModel.findOneAndUpdate({ _id: userId }, body);
       return res.status(201).send({ msg: "Record Updated" });
     } else {
       res.status(401).send({ error: "User Not Found" });
