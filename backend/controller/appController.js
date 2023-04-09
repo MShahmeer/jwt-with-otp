@@ -126,9 +126,18 @@ export async function getUser(req, res) {
 }
 
 /** PUT: http://localhost:8080/api/updateUser*/
+
 export async function updateUser(req, res) {
   try {
-    res.json("updateUser Route");
+    const id = req.query.id;
+    if (id) {
+      const body = req.body;
+      //update the data
+      await UserModel.findOneAndUpdate({ _id: id }, body);
+      return res.status(201).send({ msg: "Record Updated" });
+    } else {
+      res.status(401).send({ error: "User Not Found" });
+    }
   } catch (error) {
     return res.status(401).send({ error });
   }
