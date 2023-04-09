@@ -9,7 +9,7 @@ const router = Router();
 router.route("/register").post(controller.register); //register the user
 router.route("/registerMail").post(); // send the email
 router.route("/authenticate").post((req, res) => res.end()); // authenticate the user
-router.route("/login").post(controller.login); // login the app
+router.route("/login").post(controller.verifyUser, controller.login); // login the app
 
 /** Get Methods */
 router.route("/user:username").get(controller.getUser); //user with username

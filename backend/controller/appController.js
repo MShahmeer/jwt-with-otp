@@ -2,72 +2,26 @@
 
 import UserModel from "../model/User.model.js";
 import bcrypt from "bcrypt";
+import ENV from "../config.js";
+import jwt from "jsonwebtoken";
+
+/** Middleware for the verify user */
+export async function verifyUser(req, res, next) {
+  try {
+    const { userName } = req.method == "GET" ? req.query : req.body;
+
+    //check the user existance
+    let exist = await UserModel.findOne({ userName });
+    if (!exist) {
+      return res.status(404).send({ error: "Can't find user" });
+    }
+    next();
+  } catch (error) {
+    return res.status(404).send({ error: "Authentication Error" });
+  }
+}
 
 /** POST: http://localhost:8080/api/register */
-// export async function register(req, res) {
-//   try {
-//     const { userName, password, email, mobileNumbers, profile } = req.body;
-
-//     /** Check already existing user */
-//     const existUserName = new Promise((resolve, reject) => {
-//        UserModel.findOne({ userName }, function (error, user) {
-//         if (error) reject(new Error(error));
-//         if (user) reject({ error: "username already taken" });
-
-//         resolve();
-//       });
-//     });
-//     /** Check already existing email */
-//     const existEmail = new Promise((resolve, reject) => {
-//        UserModel.findOne({ email }, function (error, email) {
-//         if (error) reject(new Error(err));
-//         if (email) reject({ error: "user with email already exists" });
-
-//         resolve();
-//       });
-//     });
-
-//     Promise.all([existUserName, existEmail])
-//       .then(() => {
-//         if (password) {
-//           console.log("email: ", email);
-
-//           bcrypt
-//             .hash(password, 10)
-//             .then((hashedPassword) => {
-//               const user = new UserModel({
-//                 userName,
-//                 password: hashedPassword,
-//                 profile: profile || "",
-//                 email,
-//                 mobileNumbers,
-//               });
-
-//               /** Return and save the result as response */
-//               user.save().then((result) =>
-//                 res
-//                   .status(201)
-//                   .send({ msg: "User Registered successfully" })
-//                   .catch((error) => {
-//                     res.status(500).send({ error: "unknown" });
-//                   })
-//               );
-//             })
-//             .catch((err) => {
-//               return res.status(500).send({
-//                 error: "Enabled to hashed password",
-//               });
-//             });
-//         }
-//       })
-//       .catch((error) => {
-//         return res.status(500).send({ error: "Second Last" });
-//       });
-//   } catch (error) {
-//     return res.status(500).send({ error: "Last one" });
-//   }
-// }
-
 export async function register(req, res) {
   try {
     const { userName, password, email, mobileNumbers, profile } = req.body;
@@ -105,7 +59,46 @@ export async function register(req, res) {
 
 /** POST: http://localhost:8080/api/login */
 export async function login(req, res) {
-  res.json("Login Route");
+  const { userName, password } = req.body;
+  try {
+    const user = await UserModel.findOne({ userName });
+    // Check if the user with the given userName exists
+    if (!user) {
+      return res.status(404).send({ error: "Username not found" });
+    }
+
+    // Compare the given password with the user's password
+    const passwordMatches = await bcrypt.compare(password, user.password);
+
+    if (!passwordMatches) {
+      // If the passwords don't match, send an error response
+      return res.status(400).send({ error: "Password does not match" });
+    }
+
+    // Check if the user has a password
+    if (!user.password) {
+      return res.status(400).send({ error: "User does not have a password" });
+    }
+
+    const token = await jwt.sign(
+      {
+        userId: user._id,
+        userName: user.userName,
+      },
+      ENV.JWT_SECRET,
+      { expiresIn: "24hr" }
+    );
+
+    // If all checks pass, return a success response
+    return res.status(200).send({
+      message: "Login successful",
+      userName: user.userName,
+      token,
+    });
+  } catch (error) {
+    // Handle any other errors that may occur
+    return res.status(500).send({ error });
+  }
 }
 
 /** GET: http://localhost:8080/api/user/shahmeer*/
