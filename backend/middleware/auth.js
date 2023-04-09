@@ -17,3 +17,12 @@ export default async function Auth(req, res, next) {
     res.status(401).json({ error: "Authentication Failed" });
   }
 }
+
+export function localVariables(req, res, next) {
+  //generate this variable only when the OTP is generated, so that we can access the OTP tp verify
+  req.app.locals = {
+    OTP: null,
+    resetSession: false,
+  };
+  next();
+}

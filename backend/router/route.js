@@ -2,7 +2,7 @@ import { Router } from "express";
 
 /** import all controllers */
 import * as controller from "../controller/appController.js";
-import Auth from "../middleware/auth.js";
+import Auth, { localVariables } from "../middleware/auth.js";
 
 const router = Router();
 
@@ -14,7 +14,9 @@ router.route("/login").post(controller.verifyUser, controller.login); // login t
 
 /** Get Methods */
 router.route("/user/:userName").get(controller.getUser); //user with username
-router.route("/generateOTP").get(controller.generateOTP); //generate random OTP
+router
+  .route("/generateOTP")
+  .get(controller.verifyUser, localVariables, controller.generateOTP); //generate random OTP
 router.route("/verifyOTP").get(controller.verifyOTP); //verify generated OTP
 router.route("/createResetSession").get(controller.createResetSession); //reset all the variables
 
