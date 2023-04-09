@@ -103,12 +103,35 @@ export async function login(req, res) {
 
 /** GET: http://localhost:8080/api/user/shahmeer*/
 export async function getUser(req, res) {
-  res.json("getUser Route");
+  const { userName } = req.params;
+
+  try {
+    if (!userName) {
+      return res.status(501).send({ error: "Invalid Username" });
+    }
+
+    const user = await UserModel.findOne({ userName });
+
+    if (!user) {
+      return res.status(501).send({ error: "Couldn't find the user" });
+    }
+
+    // remove password from the data and mongoose give unnecessary data so convert it to JSON
+    const { password, ...rest } = Object.assign({}, user.toJSON());
+
+    return res.status(201).send(rest);
+  } catch (error) {
+    return res.status(404).send({ error: "Can't find user data" });
+  }
 }
 
 /** PUT: http://localhost:8080/api/updateUser*/
 export async function updateUser(req, res) {
-  res.json("updateUser Route");
+  try {
+    res.json("updateUser Route");
+  } catch (error) {
+    return res.status(401).send({ error });
+  }
 }
 
 /** GET: http://localhost:8080/api/generateOTP*/
