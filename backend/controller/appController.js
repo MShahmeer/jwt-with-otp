@@ -22,7 +22,15 @@ export async function verifyUser(req, res, next) {
   }
 }
 
-/** POST: http://localhost:8080/api/register */
+/** POST: http://localhost:8080/api/register 
+ * @param : {
+  "userName" : "example123",
+  "password" : "admin123",
+  "email": "example@gmail.com",
+  "mobile": ["8009860560"],
+  "profile": ""
+}
+*/
 export async function register(req, res) {
   try {
     const { userName, password, email, mobileNumbers, profile } = req.body;
@@ -58,7 +66,12 @@ export async function register(req, res) {
   }
 }
 
-/** POST: http://localhost:8080/api/login */
+/** POST: http://localhost:8080/api/login 
+ * @param: {
+  "username" : "example123",
+  "password" : "admin123"
+}
+*/
 export async function login(req, res) {
   const { userName, password } = req.body;
   try {
@@ -126,8 +139,16 @@ export async function getUser(req, res) {
   }
 }
 
-/** PUT: http://localhost:8080/api/updateUser*/
-
+/** PUT: http://localhost:8080/api/updateuser 
+ * @param: {
+  "header" : "<token>"
+}
+body: {
+    userName: '',
+    email : '',
+    profile : ''
+}
+*/
 export async function updateUser(req, res) {
   try {
     const id = req.query.id;

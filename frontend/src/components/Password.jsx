@@ -50,6 +50,7 @@ const Password = () => {
           return (
             <Box
               sx={{
+                width: 300,
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",

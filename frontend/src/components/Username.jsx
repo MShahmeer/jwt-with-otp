@@ -95,6 +95,8 @@ const Username = () => {
                   sx={{
                     mt: 2,
                   }}
+                  component={Link}
+                  to="/password"
                   fullWidth
                   variant="outlined"
                   type="submit"
